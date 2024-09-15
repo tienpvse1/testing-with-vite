@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -16,14 +17,22 @@ export class UserService {
     private readonly userRepository: IUserRepository,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.userRepository.create(createUserDto);
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const createdUser = await this.userRepository.create(createUserDto);
+      return createdUser;
+    } catch (error) {
+      throw new BadRequestException('cannot create user');
+    }
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.find(id);
-    if (!user) throw new NotFoundException('user not found');
-    return user;
+    try {
+      const user = await this.userRepository.find(id);
+      return user;
+    } catch (error) {
+      throw new NotFoundException('user not found');
+    }
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
